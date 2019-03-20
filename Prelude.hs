@@ -14,6 +14,7 @@ import           Control.Lens             as X hiding (Strict, Wrapped, uncons,
 import           Control.Monad.Error.Lens as X (catching, throwing, throwing_,
                                                 trying)
 import           Control.Monad.IO.Unlift  as X
+import           Control.Monad.Time       as X (MonadTime (currentTime))
 import           Data.Generics.Labels     ()
 import           Data.Generics.Product    as X (HasType (..))
 import           Data.Generics.Sum        as X (AsType (..))
