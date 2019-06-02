@@ -322,8 +322,12 @@ in self: super: {
     };
   };
 
-  nix-cache-s3 = self.writeScript "nix-cache-s3" ''
-    #!${self.stdenv.shell}
-    ${builtins.readFile ../scripts/cache}
+  nix-cache-s3 = self.stdenv.mkDerivation {
+    name = "nix-cache-s3";
+    phases = ["installPhase" "fixupPhase"];
+    installPhase = ''
+      mkdir -p $out/bin
+      cp ${../scripts/cache} $out/bin/nix-cache-s3
     '';
+  };
 }

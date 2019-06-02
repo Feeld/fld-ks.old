@@ -42,11 +42,8 @@ in pkgs.dockerTools.buildImage {
     skopeo
     yamlUtils
     jq
-    #FIXME: These are for backwards compat. Remove when this branch is merged to
-    #master
     git
-    docker-cli-static
-    # END FIXME
+    nix-cache-s3
   ];
 
   runAsRoot = ''
