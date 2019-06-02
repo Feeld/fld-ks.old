@@ -2,7 +2,15 @@
 pkgs: self: super:
 with pkgs.haskell.lib;
 {
-  dbmigrations = dontCheck (self.callHackage "dbmigrations" "2.0.0" {});
+  dbmigrations =
+    let
+      src = pkgs.fetchFromGitHub
+        { owner = "jtdaugherty";
+          repo = "dbmigrations";
+          rev = "80336a736ac394a2d38c65661b249b2fae142b64";
+          sha256 = "0v5vq1yjwdgc90bz05hs0i6rqzx1zghm4r1c3b8s6civ460jx1kc";
+        };
+    in dontCheck (self.callCabal2nix "dbmigrations" src {});
   dbmigrations-postgresql = dontCheck (self.callHackage "dbmigrations-postgresql" "2.0.0" {});
 
   # This is used by ekg server. We don't need openssl support (it's used for
