@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# This script is used to create a binary cache of a derivation and it's
+# dependencies and then push it to S3
+#
+# WARNING: It needs nix >= 2.1 to work properly
+
+set -eu
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+export NIX_PATH=nixpkgs=$DIR/../
+
+# Sanity checks
+
+if [[ ! -f $KEYFILE ]]; then
+  echo "Need to pass the path to your private package signinig key in "
+  echo "the KEYFILE environment variable"
+  exit -1
+fi
+
+NIXOPTS="$@"
+CACHE=${CACHE:-$DIR/../../.nix-cache}
+S3_CACHE=${S3_CACHE:-s3://feeld-nixcache}
+
+echo "Building..."
+out=$(nix-build --no-out-link $NIXOPTS)
+
+echo "Copying to local cache ..."
+# We instantiate the derivation so we get all build time dependencies too
+derivation=$(nix-instantiate $NIXOPTS)
+nix-store -qR --include-outputs $derivation \
+  | xargs nix copy --to "file://$CACHE"
+
+echo "Signing local cache ..."
+nix sign-paths -v --store "file://$CACHE" -k $KEYFILE --all
+
+echo "Configuring local cache ..."
+cat<<EOF > $CACHE/nix-cache-info
+StoreDir: /nix/store
+WantMassQuery: 1
+Priority: 20
+EOF
+
+echo "Syncing local cache with S3..."
+aws s3 sync $CACHE/ $S3_CACHE
