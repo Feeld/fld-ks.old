@@ -32,10 +32,10 @@ with pkgs.haskell.lib;
   postgresql-typed =
     let
       src = pkgs.fetchFromGitHub
-        { owner = "Feeld";
+        { owner = "Dylex";
           repo = "postgresql-typed";
-          rev = "fd9af1e799c50ea91abacaa7df8fa882acf45463";
-          sha256 = "0c7rzdpw080ka2khn6x4x405jb69wj5j06whk5w3kivgg7byzgma";
+          rev = "e0903ae6bdb397e9b2ebffe4a7fa1d5ae11f1141";
+          sha256 = "1jwyfd53654a9c9vl8g1ha13vfmzkpd9jibx3igwqgr0a4nkpjzs";
         };
       drv = self.callCabal2nix "postgresql-typed" src { HDBC=null; };
     in pkgs.lib.withPostgres pkgs.pkgsGlibc.postgresql
