@@ -61,6 +61,16 @@ with pkgs.haskell.lib;
         };
     in self.callCabal2nix "ses-sns-notification" src {};
 
+  fb =
+    let
+      src = pkgs.fetchFromGitHub
+        { owner = "psibi";
+          repo = "fb";
+          rev = "f80eca8b1183b58fa704d667a2d414d8d34c0036";
+          sha256 = "1f917hyx1g8v2jil67xvjqkw9w35ymrbywk8pc6d7izw71r3bbkr";
+        };
+    in dontCheck( self.callCabal2nix "fb" src {});
+
   # This hack provides a configured hoogle instance inside nix-shell
   ghcWithPackages = super.ghcWithHoogle;
 }
