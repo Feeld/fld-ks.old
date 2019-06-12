@@ -19,7 +19,7 @@ if [[ ! -f $KEYFILE ]]; then
 fi
 
 NIXOPTS="$@"
-CACHE=${CACHE:-$DIR/../../.nix-cache}
+CACHE=${CACHE:-.nix-cache}
 S3_CACHE=${S3_CACHE:-s3://feeld-nixcache}
 
 echo "Building..."
