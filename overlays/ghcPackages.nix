@@ -61,6 +61,16 @@ with pkgs.haskell.lib;
         };
     in self.callCabal2nix "ses-sns-notification" src {};
 
+  s3-sns-notification =
+    let
+      src = pkgs.fetchFromGitHub
+        { owner = "Feeld";
+          repo = "s3-sns-notification";
+          rev = "587514f2677fceae66a71b0a9931acd99fd57352";
+          sha256 = "1jy5bqaq53qy321q3j038fjcxyz18mcf741h944hxnw6lwppmrpw";
+        };
+    in self.callCabal2nix "s3-sns-notification" src {};
+
   fb =
     let
       src = pkgs.fetchFromGitHub
