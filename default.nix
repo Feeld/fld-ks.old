@@ -59,6 +59,7 @@ let
           overlay
           nixOverlay
           (import ./overlays/utilities.nix)
+          (import ./overlays/postgresql.nix)
           (import ./overlays/muslPkgs.nix)
           (import ./overlays/docker-static.nix)
           (import ./overlays/kubenix.nix)
