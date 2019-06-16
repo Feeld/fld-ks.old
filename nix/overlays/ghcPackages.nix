@@ -81,6 +81,9 @@ with pkgs.haskell.lib;
         };
     in dontCheck( self.callCabal2nix "fb" src {});
 
+    fld-prelude =
+      self.callCabal2nix "fld-prelude" (pkgs.lib.cleanSource ../../fld-prelude) {};
+
   # This hack provides a configured hoogle instance inside nix-shell
   ghcWithPackages = super.ghcWithHoogle;
 }
