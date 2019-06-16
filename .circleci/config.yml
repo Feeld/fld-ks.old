@@ -11,7 +11,7 @@ jobs:
       - restore_cache:
           key: v2-nix-cache
       - run:
-          name: Build, test and push artifacts to s3
+          name: Build and test
           command: nix-build release.nix
       - run:
           no_output_timeout: 60m
