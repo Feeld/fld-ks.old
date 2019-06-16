@@ -1,0 +1,33 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: avalverde/feeld-circleci-nix
+
+    working_directory: /src
+
+    steps:
+      - checkout
+      - restore_cache:
+          key: v2-nix-cache
+      - run:
+          name: Build, test and push artifacts to s3
+          command: nix-build release.nix
+      - run:
+          no_output_timeout: 60m
+          name: Archive and sign build artifacts. Push them to binary cache for devs
+          command: |
+            export KEYFILE=/dev/shm/pk
+            (umask 0077 && echo ${NIX_PRIVATE_KEY} > $KEYFILE)
+            CACHE=/src/.nix-cache nix-cache-s3 nix/cache.nix
+      - save_cache:
+          key: v2-nix-cache-{{ .Revision }}
+          paths:
+            - /src/.nix-cache
+            - /src/.cache
+
+workflows:
+  version: 2
+  build_deploy:
+    jobs:
+      - build
