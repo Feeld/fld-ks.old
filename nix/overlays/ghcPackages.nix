@@ -84,6 +84,9 @@ with pkgs.haskell.lib;
   fld-jwt =
     self.callCabal2nix "fld-jwt" (pkgs.lib.cleanSource ../../fld-jwt) {};
 
+  fld-pg-typed =
+    self.callCabal2nix "fld-pg-typed" (pkgs.lib.cleanSource ../../fld-pg-typed) {};
+
   fld-prelude =
     self.callCabal2nix "fld-prelude" (pkgs.lib.cleanSource ../../fld-prelude) {};
 
