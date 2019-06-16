@@ -19,7 +19,7 @@ jobs:
           command: |
             export KEYFILE=/dev/shm/pk
             (umask 0077 && echo ${NIX_PRIVATE_KEY} > $KEYFILE)
-            CACHE=/src/.nix-cache nix-cache-s3 nix/cache.nix
+            CACHE=/src/.nix-cache nix-cache-s3 release.nix
       - save_cache:
           key: v2-nix-cache-{{ .Revision }}
           paths:
