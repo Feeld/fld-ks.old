@@ -7,6 +7,8 @@
 {-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE NamedFieldPuns             #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeApplications           #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE UndecidableInstances       #-}
@@ -31,6 +33,7 @@ module Fld.Postgres.Typed (
 
 import           Fld.Prelude
 
+import           Control.Monad.Logger               (MonadLogger, logWarn)
 import           Data.Aeson                         (FromJSON, ToJSON)
 import           Data.Pool                          (Pool, createPool,
                                                      destroyAllResources,
@@ -112,10 +115,19 @@ newtype PGConnectionPool = PGConnectionPool
 -- | Initializes a database connection pool, passes it to the continuation and
 -- makes sure it is destroyed after the continuation is done, even in the case
 -- of exceptions
-withPool :: (MonadIO m, MonadMask m) => PoolConfig -> PGDatabaseConfig -> (PGConnectionPool -> m a) -> m a
+withPool
+  :: ( MonadUnliftIO m
+     , MonadMask m
+     , MonadLogger m
+     )
+  => PoolConfig -> PGDatabaseConfig -> (PGConnectionPool -> m a) -> m a
 withPool poolCfg (PGDatabaseConfig dbCfg) f =
-  bracket (initializePool poolCfg dbCfg) finalizePool $ \pool ->
-    withConnection pool smokeTestQuery >> f pool
+  bracket (initializePool poolCfg dbCfg) finalizePool $ \pool -> do
+    async $
+      withConnection pool smokeTestQuery
+        `catch` \(e :: SomeException) ->
+          $(logWarn) $ "Could not perform smoke-test query: " <> show e
+    f pool
 
 -- | Runs a dummy query to make sure the connection parameters are valid
 -- and that the database is alive.
@@ -131,10 +143,19 @@ smokeTestQuery = runReaderT (void $ dbQuery ("SELECT 1" :: ByteString))
 withConnection :: (MonadIO m, MonadMask m) => PGConnectionPool -> (PGConnection -> m a) -> m a
 withConnection (PGConnectionPool pool) = withResource pool
 
-withConnectionNoPool :: (MonadIO m, MonadMask m) => PGDatabaseConfig -> (PGConnection -> m a) -> m a
+withConnectionNoPool
+  :: ( MonadUnliftIO m
+     , MonadMask m
+     , MonadLogger m
+     )
+  => PGDatabaseConfig -> (PGConnection -> m a) -> m a
 withConnectionNoPool (PGDatabaseConfig dbCfg) f =
-  bracket (liftIO $ pgConnect dbCfg) (liftIO . pgDisconnect) $ \conn ->
-    smokeTestQuery conn >> f conn
+  bracket (liftIO $ pgConnect dbCfg) (liftIO . pgDisconnect) $ \conn -> do
+    async $
+      smokeTestQuery conn
+        `catch` \(e :: SomeException) ->
+          $(logWarn) $ "Could not perform smoke-test query: " <> show e
+    f conn
 
 -- | This is equivalent to `Data.Pool.withResource' but usable with any
 -- 'MonadMask'

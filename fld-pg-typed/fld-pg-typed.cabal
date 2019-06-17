@@ -4,7 +4,7 @@ cabal-version:       >=1.10
 -- http://haskell.org/cabal/users-guide/
 
 name:                fld-pg-typed
-version:             0.1.0.0
+version:             0.1.1.0
 synopsis:            Infrastructure to connect to postgresql
 -- description:
 homepage:            https://github.com/Feeld/fld-ks
@@ -22,6 +22,14 @@ library
   exposed-modules:     Fld.Postgres.Typed
   -- other-modules:
   other-extensions:    UndecidableInstances
-  build-depends:       base >=4.12 && <4.13, fld-prelude >=0.1 && <0.2, aeson >=1.4 && <1.5, resource-pool >=0.2 && <0.3, postgresql-typed >=0.6 && <0.7, envy >=1.5 && <1.6, network >=2.8 && <2.9
+  build-depends:
+    base >=4.12 && <4.13,
+    fld-prelude >=0.1 && <0.2,
+    aeson >=1.4 && <1.5,
+    resource-pool >=0.2 && <0.3,
+    postgresql-typed >=0.6 && <0.7,
+    envy >=1.5 && <1.6,
+    network >=2.8 && <2.9,
+    monad-logger
   hs-source-dirs:      src
   default-language:    Haskell2010
