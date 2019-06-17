@@ -144,17 +144,16 @@ withConnection :: (MonadIO m, MonadMask m) => PGConnectionPool -> (PGConnection 
 withConnection (PGConnectionPool pool) = withResource pool
 
 withConnectionNoPool
-  :: ( MonadUnliftIO m
+  :: ( MonadIO m
      , MonadMask m
      , MonadLogger m
      )
   => PGDatabaseConfig -> (PGConnection -> m a) -> m a
 withConnectionNoPool (PGDatabaseConfig dbCfg) f =
   bracket (liftIO $ pgConnect dbCfg) (liftIO . pgDisconnect) $ \conn -> do
-    void $ async $
-      smokeTestQuery conn
-        `catch` \(e :: SomeException) ->
-          $(logWarn) $ "Could not perform smoke-test query: " <> show e
+    smokeTestQuery conn
+      `catch` \(e :: SomeException) ->
+        $(logWarn) $ "Could not perform smoke-test query: " <> show e
     f conn
 
 -- | This is equivalent to `Data.Pool.withResource' but usable with any
