@@ -123,7 +123,7 @@ withPool
   => PoolConfig -> PGDatabaseConfig -> (PGConnectionPool -> m a) -> m a
 withPool poolCfg (PGDatabaseConfig dbCfg) f =
   bracket (initializePool poolCfg dbCfg) finalizePool $ \pool -> do
-    async $
+    void $ async $
       withConnection pool smokeTestQuery
         `catch` \(e :: SomeException) ->
           $(logWarn) $ "Could not perform smoke-test query: " <> show e
@@ -151,7 +151,7 @@ withConnectionNoPool
   => PGDatabaseConfig -> (PGConnection -> m a) -> m a
 withConnectionNoPool (PGDatabaseConfig dbCfg) f =
   bracket (liftIO $ pgConnect dbCfg) (liftIO . pgDisconnect) $ \conn -> do
-    async $
+    void $ async $
       smokeTestQuery conn
         `catch` \(e :: SomeException) ->
           $(logWarn) $ "Could not perform smoke-test query: " <> show e

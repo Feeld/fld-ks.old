@@ -33,3 +33,8 @@ library
     monad-logger >= 0.3.30
   hs-source-dirs:      src
   default-language:    Haskell2010
+  ghc-options:
+    -Wall
+    -fprint-potential-instances
+    -fwarn-redundant-constraints
+    -funbox-strict-fields
